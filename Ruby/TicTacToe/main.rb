@@ -1,3 +1,5 @@
+require 'pry-byebug'
+
 # The game class
 class Game
   NUMBER_OF_SPACES = 3
@@ -29,16 +31,20 @@ class Game
     'Both players need to be ready!' unless @player1.ready && @player2.ready
 
     # The game loop
-    until @player1.won || @player2.won
+    until @player1.won?(@board) || @player2.won?(@board)
       @player1.turn(@board, to_s)
+      break if @player1.won?(@board)
+
       @player2.turn(@board, to_s)
     end
+
+    puts @player1.won?(@board) ? "#{@player1.name} wins!" : "#{@player2.name} wins!"
   end
 end
 
 # The player class
 class Player
-  attr_reader :ready, :won
+  attr_reader :ready, :won, :name
 
   NUMBER_OF_SPACES = 3
 
@@ -81,7 +87,9 @@ class Player
 
   # The turn loop
   def turn(board, board_string)
-    puts "#{@name}'s turn:"
+    # Gem.win_platform? ? system('cls') : system('clear')
+
+    puts "#{@name}'s turn: (#{@symbol})"
     puts board_string
     puts 'Enter an index according to the guide below: '
 
@@ -98,23 +106,58 @@ class Player
       column = r_and_c[1]
 
       unless board[row][column] == '-'
-        puts 'Choose a square you haven\'t marked yet!'
+        puts 'Choose an unmarked square!'
         next
       end
 
       board[row][column] = @symbol
 
-      p board[row][column]
       break
     end
   end
 
-  def won?
+  def rows?(board)
+    board.each { |row| return true if row.all? { |slot| slot == @symbol } }
+  end
+
+  def columns?(board)
+    column_list = board.each_with_object([[], [], []]) do |row, column|
+      column[0] << row[0]
+      column[1] << row[1]
+      column[2] << row[2]
+      column
+    end
+
+    column_list.each { |column| return true if column.all? { |slot| slot == @symbol } }
+
+    false
+  end
+
+  def ltr_diagonals?(board)
+    ltr_diagonal_list = board.each_with_object([]) do |row, diagonal|
+      diagonal << row[board.index(row)]
+      diagonal
+    end
+
+    true if ltr_diagonal_list.all? { |slot| slot == @symbol }
+  end
+
+  def won?(board)
     # Checks to implement
-    # TODO row win checks
-    # TODO column win checks
     # TODO left-to-right diagonal win checks
     # TODO right-to-left diagonal win checks
+    # FIXME the final checks (.each and .all) do not work and return the array
+
+    # Row win check
+    rows?(board)
+
+    # Column win check
+    columns?(board)
+
+    # Left-to-right diagonal win check
+    ltr_diagonals?(board)
+
+    false
   end
 end
 
