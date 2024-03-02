@@ -1,5 +1,7 @@
 require 'pry-byebug'
 
+DEBUG = true
+
 # The game class
 class Game
   NUMBER_OF_SPACES = 3
@@ -28,7 +30,7 @@ class Game
   end
 
   def play
-    'Both players need to be ready!' unless @player1.ready && @player2.ready
+    # 'Both players need to be ready!' unless @player1.ready && @player2.ready
 
     # The game loop
     until @player1.won?(@board) || @player2.won?(@board)
@@ -38,6 +40,7 @@ class Game
       @player2.turn(@board, to_s)
     end
 
+    puts "\n#{self}"
     puts @player1.won?(@board) ? "#{@player1.name} wins!" : "#{@player2.name} wins!"
   end
 end
@@ -87,7 +90,9 @@ class Player
 
   # The turn loop
   def turn(board, board_string)
-    # Gem.win_platform? ? system('cls') : system('clear')
+    unless DEBUG
+      Gem.win_platform? ? system('cls') : system('clear')
+    end
 
     puts "#{@name}'s turn: (#{@symbol})"
     puts board_string
@@ -127,10 +132,7 @@ class Player
       column[2] << row[2]
       column
     end
-
     column_list.each { |column| return true if column.all? { |slot| slot == @symbol } }
-
-    false
   end
 
   def ltr_diagonals?(board)
@@ -142,20 +144,32 @@ class Player
     true if ltr_diagonal_list.all? { |slot| slot == @symbol }
   end
 
-  def won?(board)
-    # Checks to implement
-    # TODO left-to-right diagonal win checks
-    # TODO right-to-left diagonal win checks
-    # FIXME the final checks (.each and .all) do not work and return the array
+  def rtl_diagonals?(board)
+    rtl_diagonal_list = board.each_with_object([]).with_index do |(row, diagonal), row_index|
+      diagonal << if row_index == 1
+                    row[row_index]
+                  else
+                    (row_index.zero? ? row[row_index + 2] : row[row_index - 2])
+                  end
 
+      diagonal
+    end
+
+    true if rtl_diagonal_list.all? { |slot| slot == @symbol }
+  end
+
+  def won?(board)
     # Row win check
-    rows?(board)
+    return true if rows?(board) == true
 
     # Column win check
-    columns?(board)
+    return true if columns?(board) == true
 
     # Left-to-right diagonal win check
-    ltr_diagonals?(board)
+    return true if ltr_diagonals?(board) == true
+
+    # Right-to-left diagonal win check
+    return true if rtl_diagonals?(board) == true
 
     false
   end
