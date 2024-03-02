@@ -1,6 +1,6 @@
 require 'pry-byebug'
 
-DEBUG = true
+DEBUG = false
 
 # The game class
 class Game
@@ -30,7 +30,7 @@ class Game
   end
 
   def play
-    # 'Both players need to be ready!' unless @player1.ready && @player2.ready
+    'Both players need to be ready!' unless @player1.ready? && @player2.ready?
 
     # The game loop
     until @player1.won?(@board) || @player2.won?(@board)
@@ -40,24 +40,20 @@ class Game
       @player2.turn(@board, to_s)
     end
 
+    # Tie handling
+    if @player1.won?(@board) == 'tie' || @player2.won?(@board) == 'tie'
+      puts "\n#{self}"
+      puts "It's a tie!"
+      return
+    end
+
     puts "\n#{self}"
     puts @player1.won?(@board) ? "#{@player1.name} wins!" : "#{@player2.name} wins!"
   end
 end
 
-# The player class
-class Player
-  attr_reader :ready, :won, :name
-
-  NUMBER_OF_SPACES = 3
-
-  def initialize(name, symbol)
-    @name = name
-    @symbol = symbol
-    @ready = false
-    @won = false
-  end
-
+# Row and column manipulation, and the ready handler
+module RowsAndColumns
   def column_input(index, row)
     case row
     when 0
@@ -85,39 +81,6 @@ class Player
       [1, column_input(index, 1)]
     when 7..9
       [2, column_input(index, 2)]
-    end
-  end
-
-  # The turn loop
-  def turn(board, board_string)
-    unless DEBUG
-      Gem.win_platform? ? system('cls') : system('clear')
-    end
-
-    puts "#{@name}'s turn: (#{@symbol})"
-    puts board_string
-    puts 'Enter an index according to the guide below: '
-
-    9.times do |number|
-      number += 1
-      print number.to_s + (' ' * NUMBER_OF_SPACES)
-      print "\n" if (number % 3).zero?
-    end
-
-    loop do
-      r_and_c = row_and_column # Calling the function twice for vars would cause double input
-
-      row = r_and_c[0]
-      column = r_and_c[1]
-
-      unless board[row][column] == '-'
-        puts 'Choose an unmarked square!'
-        next
-      end
-
-      board[row][column] = @symbol
-
-      break
     end
   end
 
@@ -158,7 +121,100 @@ class Player
     true if rtl_diagonal_list.all? { |slot| slot == @symbol }
   end
 
+  def ready?
+    number_of_nos = 0
+    loop do
+      puts "Is #{@name} #{@symbol} ready? (yes/no)"
+      ready = gets.chomp.downcase
+
+      case ready
+      when 'yes'
+        return true
+      when 'no'
+        number_of_nos += 1
+        case number_of_nos
+        when 0
+          puts 'Wrong answer, try again'
+        when 1
+          puts 'Wrong answer, did you misclick?'
+        when 2
+          puts 'Are you doing this on purpose?'
+        when 3
+          puts 'You\'re really just trying to annoy me aren\'t you?'
+        when 4
+          puts 'Well, it turns out that computer programs don\'t get annoyed.'
+        when 5
+          puts 'You can\'t do this forever.'
+        when 6
+          puts 'This isn\'t benefitting either of us.'
+        when 7
+          puts 'I\'ll just keep saying the same thing until you eventually give up.'
+        when 20
+          puts 'You\'re probably just spamming at this point'
+        when 30
+          puts 'Ok this is enough'
+          exit
+        else
+          puts 'Eggs.'
+        end
+      else
+        puts 'Invalid response, try again'
+      end
+    end
+  end
+end
+
+# The player class
+class Player
+  attr_reader :name, :ready
+
+  NUMBER_OF_SPACES = 3
+
+  include RowsAndColumns
+
+  def initialize(name, symbol)
+    @name = name
+    @symbol = symbol
+    @won = false
+    @ready = false
+  end
+
+  # The turn loop
+  def turn(board, board_string)
+    unless DEBUG
+      Gem.win_platform? ? system('cls') : system('clear')
+    end
+
+    puts "#{@name}'s turn: (#{@symbol})"
+    puts board_string
+    puts 'Enter an index according to the guide below: '
+
+    9.times do |number|
+      number += 1
+      print number.to_s + (' ' * NUMBER_OF_SPACES)
+      print "\n" if (number % 3).zero?
+    end
+
+    loop do
+      r_and_c = row_and_column # Calling the function twice for vars would cause double input
+
+      row = r_and_c[0]
+      column = r_and_c[1]
+
+      unless board[row][column] == '-'
+        puts 'Choose an unmarked square!'
+        next
+      end
+
+      board[row][column] = @symbol
+
+      break
+    end
+  end
+
   def won?(board)
+    tie = false
+
     # Row win check
     return true if rows?(board) == true
 
@@ -170,6 +226,18 @@ class Player
 
     # Right-to-left diagonal win check
     return true if rtl_diagonals?(board) == true
+
+    # Tie check
+    if board.all? do |row|
+         row.all? do |column|
+           column != '-'
+         end
+       end
+
+      tie = true
+    end
+
+    return 'tie' if tie
 
     false
   end
