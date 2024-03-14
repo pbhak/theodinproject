@@ -1,6 +1,6 @@
 # Module for displaying Mastermind pieces
 module Display
-  def code(number, padding = 1, content = '')
+  def code_peg(number, padding = 1, content = '')
     number = number.to_i unless number.instance_of?(Integer)
     spaces = ' ' * padding
 
@@ -16,7 +16,7 @@ module Display
     codes[number]
   end
 
-  def code_circle(number)
+  def code_peg_circle(number)
     codes = {
       1 => '🔴', # red
       2 => '🟢', # green
@@ -29,9 +29,9 @@ module Display
     codes[number]
   end
 
-  def peg(filled = false, padding = 0)
+  def feedback_peg(filled, padding = 0)
     spaces = ' ' * padding
 
-    filled ? "#{spaces}○#{spaces}" : "#{spaces}●#{spaces}"
+    filled ? "#{spaces}●#{spaces}" : "#{spaces}○#{spaces}"
   end
 end
