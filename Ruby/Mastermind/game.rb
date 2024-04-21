@@ -10,17 +10,19 @@ class Game
     valid_input_colors = false
 
     until valid_input_colors
-      print "Do you prefer colors [C] (#{@player.format_array([1, 2, 3, 4], true)})"\
-           " or numbers [N] (#{@player.format_array([1, 2, 3, 4], false)})? "
+      @player.colors = true
+      print "Do you prefer colors [C] (#{@player.format_array([1, 2, 3, 4])})"
+      @player.colors = false
+      print " or numbers [N] (#{@player.format_array([1, 2, 3, 4])})? "
 
       case gets.chomp.upcase
       when 'C'
         puts 'Colors selected'
-        @player.format_array([], true)
+        @player.colors = true
         valid_input_colors = true
       when 'N'
         puts 'Numbers selected'
-        @player.format_array([])
+        @player.colors = false
         valid_input_colors = true
       else
         puts 'Invalid input, please enter either C or N'
@@ -49,7 +51,6 @@ class Game
 
   def start_cb
     @code = generate_code
-    p @code
     @code_counts = Hash.new(0)
     @code.each { |peg| @code_counts[peg] += 1 }
 
@@ -67,7 +68,6 @@ class Game
       @player.place_guess
 
       puts 'Guess placed'
-      p feedback(@player.current_guess)
 
       feedback(@player.current_guess).each do |k, v|
         case k
@@ -99,9 +99,9 @@ class Game
   def start_cm
     puts 'Set your code!'
     @player.place_guess('code')
-
-    puts 'Code set'
     @code = @player.current_guess
+
+    puts "Code set to #{@player.format_array(@code)}"
 
     @code_counts = Hash.new(0)
     @code.each { |peg| @code_counts[peg] += 1 }
@@ -128,6 +128,7 @@ class Game
       end
 
       puts "Turn ##{turn}"
+      puts "Computer placing guess...\r"
       current_guess = computer.place_guess(turn, current_guess, current_feedback)
       puts "Computer placed guess #{@player.format_array(current_guess)}"
 
@@ -142,11 +143,11 @@ class Game
             break
           end
 
-          puts "Amount of exact numbers: #{v}"
+          puts "Amount of exact #{@player.colors ? 'colors' : 'numbers'}: #{v}"
         when :near
-          puts "Amount of close numbers: #{v}"
+          puts "Amount of close #{@player.colors ? 'colors' : 'numbers'}: #{v}"
         when :none
-          puts "Amount of failed numbers: #{v}"
+          puts "Amount of failed #{@player.colors ? 'colors' : 'numbers'}: #{v}"
         end
       end
 
