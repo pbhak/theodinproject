@@ -1,5 +1,4 @@
 require_relative 'computer'
-require 'pry-byebug'
 
 # Contains functionality for the computer and the turn loop
 class Game
