@@ -178,7 +178,7 @@ class Game
 
     loop do # Primary game loop
       # puts "You are on guess number #{@number_of_guesses} (#{@word})"
-      puts "You are on guess number #{@number_of_guesses} - Seconds elapsed: #{elapsed_seconds} (#{@word})"
+      puts "You are on guess number #{@number_of_guesses} - Seconds elapsed: #{elapsed_seconds}"
 
       unless @guessed_letters.empty?
         print 'Letters guessed: '
