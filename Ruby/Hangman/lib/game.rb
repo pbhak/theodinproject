@@ -209,9 +209,11 @@ class Game
         end
       elsif @current_guess == '0'
         load_save
+        place_guess
         next
       elsif @current_guess == '1'
         save
+        place_guess
         next
       elsif @current_guess.length != 1 || !@current_guess.ord.between?(97, 122)
         puts 'Invalid guess!'
