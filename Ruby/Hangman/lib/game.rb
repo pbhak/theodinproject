@@ -8,6 +8,7 @@ class Game
     @number_of_guesses = 1
     @start_time = Time.now.to_i
     @word = generate_word('words.txt')
+    # TODO add savefile recognition
   end
 
   private
@@ -72,8 +73,37 @@ class Game
     Time.now.to_i - @start_time
   end
 
-  def save
+  def to_json(*options)
+    current_state = {
+      current_guess: @current_guess,
+      guessed_letters: @guessed_letters,
+      number_of_guesses: @number_of_guesses,
+      start_time: @start_time,
+      save_time: Time.now.to_i,
+      word: @word
+    }
 
+    JSON.pretty_generate(current_state)
+  end
+
+  def save
+    File.open('save.json', 'w') do |file|
+      file.write(to_json)
+    end
+  end
+
+  def load_save
+    saved_state = {}
+    File.open('save.json', 'r') do |file|
+      saved_state = JSON.parse(file.read)
+    end
+
+    # Deserialization
+    @current_guess = saved_state['current_guess']
+    @guessed_letters = saved_state['guessed_letters']
+    @number_of_guesses = saved_state['number_of_guesses']
+    @start_time = Time.now.to_i - (saved_state['save_time'] - saved_state['start_time'])
+    @word = saved_state['word']
   end
 
   public
@@ -128,6 +158,8 @@ class Game
         puts "Took #{@number_of_guesses} guesses and #{elapsed_seconds} seconds"
         break
       end
+
+      save
     end
   end
 end
