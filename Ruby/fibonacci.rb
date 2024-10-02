@@ -4,11 +4,11 @@ def fibs(num)
   return arr if num == 1
 
   (num - 1).times do
-      if arr[-1].zero?
-      arr << 1 
-      else
-      arr << (arr[-1] + arr[-2])
-      end
+    if arr[-1].zero?
+    arr << 1 
+    else
+    arr << (arr[-1] + arr[-2])
+    end
   end
 
   return arr
