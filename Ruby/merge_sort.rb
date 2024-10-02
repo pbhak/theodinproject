@@ -23,8 +23,22 @@ def split_array(array)
   array
 end
 
-def merge_sort(array)
-  split_array array
+def swap(array)
+  [array[1], array[0]]
 end
 
-p merge_sort([33, 17, 2, 77, 7, 9, 103])
+def merge_sort(array)
+  array = split_array(array)
+  
+  array.each_with_index do |node, node_index|
+    node.each_with_index do |subnode, subnode_index|
+      if subnode.length == 2
+        array[node_index][subnode_index] = swap(subnode) if subnode[0] > subnode[1]
+      end
+    end
+  end
+  
+  array
+end
+
+p merge_sort([17, 33, 2, 77, 7, 9, 103])
