@@ -66,7 +66,6 @@ def merge_sort(array)
   array = [final_array]
   final_array = []
   
-  # array is now [[[2, 17, 33, 77], [7, 9, 101]]]
   array.each do |node|
     final_node = []
     loop do
