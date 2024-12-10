@@ -1,10 +1,14 @@
 {
   "current_guess": "1",
   "guessed_letters": [
-
+    "a",
+    "e",
+    "i",
+    "o",
+    "u"
   ],
-  "number_of_guesses": 1,
-  "start_time": 1715569951,
-  "save_time": 1715569954,
-  "word": "lunch"
+  "number_of_guesses": 6,
+  "start_time": 1715570388,
+  "save_time": 1715570397,
+  "word": "rider"
 }
