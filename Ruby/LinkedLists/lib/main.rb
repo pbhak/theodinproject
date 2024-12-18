@@ -11,4 +11,4 @@ list.append('hamster')
 list.append('snake')
 list.append('turtle')
 
-puts list
+puts list.at(3)

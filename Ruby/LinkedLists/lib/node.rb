@@ -10,6 +10,6 @@ class Node
   end
 
   def to_s
-    "(#{@value}) -> (#{@next_node.nil? ? 'nil' : @next_node.value})"
+    "(#{@value})"
   end
 end

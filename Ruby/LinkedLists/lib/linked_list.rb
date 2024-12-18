@@ -49,6 +49,17 @@ class LinkedList
     size
   end
 
+  def at(index)
+    current_index = 0
+    current_node = @tail
+    until current_index == index || current_node == @head
+      current_index += 1
+      current_node = current_node.next_node
+    end
+
+    current_node
+  end
+
   def to_s
     current_node = @tail
 
