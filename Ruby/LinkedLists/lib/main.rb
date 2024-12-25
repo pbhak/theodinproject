@@ -4,11 +4,13 @@ require_relative 'linked_list'
 
 list = LinkedList.new
 
-list.append('dog')
-list.append('cat')
-list.append('parrot')
-list.append('hamster')
-list.append('snake')
-list.append('turtle')
+list.append('head')
+list.append('1')
+list.append('2')
+list.append('3')
+list.append('4')
+list.append('tail')
 
-puts list.at(3)
+list.insert_at(5, 5)
+
+puts list

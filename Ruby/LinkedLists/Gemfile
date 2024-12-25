@@ -1,1 +1,2 @@
+gem 'debug'
 gem 'rubocop'
