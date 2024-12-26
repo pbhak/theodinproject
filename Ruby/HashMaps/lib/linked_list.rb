@@ -31,7 +31,7 @@ class LinkedList
     @size = 0
   end
 
-  def add(key, value)
+  def add(key, value = nil)
     node = Node.new(key, value)
 
     if @list.nil?

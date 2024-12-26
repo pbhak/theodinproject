@@ -3,7 +3,7 @@
 require_relative 'linked_list'
 
 # Ruby hashmap implementation
-class HashMap # rubocop:disable Metrics/ClassLength
+class HashSet
   attr_accessor :length, :buckets
 
   HASH_MULTIPLIER = 31
@@ -15,7 +15,7 @@ class HashMap # rubocop:disable Metrics/ClassLength
     @buckets = create_buckets
   end
 
-  def calculate_growth # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+  def calculate_growth # rubocop:disable Metrics/MethodLength
     return unless @length > (@capacity * @load_factor).round
 
     # Grow hashmap and repopulate entries
@@ -30,9 +30,8 @@ class HashMap # rubocop:disable Metrics/ClassLength
 
         # This is, in fact, a node
         key = bucket[index].key
-        value = bucket[index].value
 
-        set(key, value)
+        set(key)
         @length -= 1 # Running set() increments @length, which we don't want since no entries are changing
         index += 1
       end
@@ -49,13 +48,13 @@ class HashMap # rubocop:disable Metrics/ClassLength
     hash_code = 0
 
     key.each_char do |char|
-      hash_code = HashMap::HASH_MULTIPLIER * hash_code + char.ord
+      hash_code = HashSet::HASH_MULTIPLIER * hash_code + char.ord
     end
 
     hash_code
   end
 
-  def set(key, value)
+  def set(key)
     bucket_number = hash(key) % @capacity
     raise IndexError if bucket_number.negative? || bucket_number >= @buckets.length
 
@@ -65,18 +64,11 @@ class HashMap # rubocop:disable Metrics/ClassLength
     # Remove an entry from the total length if a node was removed
     @length -= 1 if @buckets[bucket_number].size == original_size - 1
 
-    @buckets[bucket_number].add(key, value)
+    @buckets[bucket_number].add(key)
     @length += 1
     calculate_growth
 
-    value
-  end
-
-  def get(key)
-    bucket_number = hash(key) % @capacity
-    raise IndexError if bucket_number.negative? || bucket_number >= @buckets.length
-
-    @buckets[hash(key) % @capacity].find(key)
+    key
   end
 
   def has?(key)
@@ -90,12 +82,11 @@ class HashMap # rubocop:disable Metrics/ClassLength
     bucket_number = hash(key) % @capacity
     raise IndexError if bucket_number.negative? || bucket_number >= @buckets.length
 
-    value = get(key)
     original_size = @buckets[bucket_number].size
     @buckets[bucket_number].remove_node_if_exists(key)
 
     @length -= 1 if @buckets[bucket_number].size == original_size - 1
-    value
+    true
   end
 
   def clear
@@ -114,31 +105,5 @@ class HashMap # rubocop:disable Metrics/ClassLength
     end
 
     keys
-  end
-
-  def values
-    values = []
-    @buckets.each do |bucket|
-      index = 0
-      until index > bucket.size - 1
-        values << bucket.list[index].value unless bucket.list[index].nil?
-        index += 1
-      end
-    end
-
-    values
-  end
-
-  def entries
-    entries = []
-    @buckets.each do |bucket|
-      index = 0
-      until index > bucket.size - 1
-        entries << [bucket.list[index].key, bucket.list[index].value] unless bucket.list[index].nil?
-        index += 1
-      end
-    end
-
-    entries
   end
 end
