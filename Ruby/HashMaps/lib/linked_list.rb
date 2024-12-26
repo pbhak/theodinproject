@@ -9,92 +9,71 @@ class Node
     @value = value
     @next_node = next_node
   end
-end
 
-# Linked list
-class LinkedList
-  attr_reader :head, :tail
-
-  def initialize
-    @head = nil
-    @tail = nil
-  end
-
-  def append(node)
-    node = Node.new(node)
-
-    if @head.nil?
-      @head = node
-    else
-      @tail.next_node = node
-    end
-
-    @tail = node
-  end
-
-  def prepend(node)
-    node = Node.new(node)
-
-    if @head.nil?
-      @head = node
-      @tail = node
-    else
-      node.next_node = @head
-      @head = node
-    end
-  end
-
-  def size
-    return nil if @head.nil?
-    return 1 if @head == @tail
-
-    size = 0
-    current_node = @head
-
-    until current_node.nil?
-      size += 1
-      current_node = current_node.next_node
-    end
-
-    size
-  end
-
-  def at(index)
-    return nil if index > size - 1
-
+  def [](index)
     current_index = 0
-    current_node = @head
-    until current_index == index || current_node == @tail
-      current_index += 1
+    current_node = self
+    until current_index == index || current_node.nil?
       current_node = current_node.next_node
+      current_index += 1
     end
 
     current_node
   end
+end
 
-  def pop # rubocop:disable Metrics/MethodLength
-    if size <= 1
-      @head = nil
-      @tail = nil
-      return nil
-    end
+# Linked list, modified for hashmap
+class LinkedList
+  attr_reader :list, :size
 
-    current_node = @head
-    popped_node = @tail
-
-    current_node = current_node.next_node until current_node.next_node == @tail
-
-    current_node.next_node = nil
-    @tail = current_node
-
-    popped_node.value
+  def initialize
+    @list = nil
+    @size = 0
   end
 
-  def contains?(value)
-    current_node = @head
+  def add(key, value)
+    node = Node.new(key, value)
+
+    if @list.nil?
+      @list = node
+    else
+      @list.next_node = node
+    end
+
+    @size += 1
+    nil
+  end
+
+  def remove_node_if_exists(key) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+    index = 0
+
+    until index > (@size - 1)
+      node = at(index)
+
+      if node.key == key
+        # Remove node
+        if @list[0] == node
+          # Node to remove is head
+          @list = @list.next_node
+        elsif at(index + 1).nil?
+          # Node to remove is tail
+          at(index - 1).next_node = nil
+        else
+          # Node to remove is in middle of list
+          at(index - 1).next_node = at(index + 1)
+        end
+
+        @size -= 1
+      end
+      index += 1
+    end
+  end
+
+  def contains?(key)
+    current_node = @list
 
     until current_node.nil?
-      return true if current_node.value == value
+      return true if current_node.key == key
 
       current_node = current_node.next_node
     end
@@ -102,48 +81,58 @@ class LinkedList
     false
   end
 
-  def find(value)
+  def empty?
+    size.zero?
+  end
+
+  def at(index)
+    return nil if index > size - 1
+
     current_index = 0
-    current_node = @head
-
-    until current_node.nil?
-      return current_index if current_node.value == value
-
+    current_node = @list
+    until current_index == index || current_node.nil?
       current_index += 1
       current_node = current_node.next_node
     end
 
-    nil
+    current_node
   end
 
-  def insert_at(value, index)
-    return nil if at(index).nil?
-
-    value = Node.new(value)
-    previous_node = at(index - 1)
-    next_node = at(index)
-
-    value.next_node = next_node
-    previous_node.next_node = value
+  def [](index)
+    at(index)
   end
 
-  def remove_at(index)
-    return nil if at(index).nil? || at(index) == @tail || at(index) == @head
-
-    previous_node = at(index - 1)
-    next_node = at(index + 1)
-
-    previous_node.next_node = next_node
+  def clear!
+    @list = nil
+    @size = 0
   end
 
-  def to_s
-    current_node = @head
+  def clear_node(node) # rubocop:disable Metrics/MethodLength
+    current_node = @list
 
     until current_node.nil?
-      print "( #{current_node.value} ) -> "
+      if current_node.next_node == node
+        if !node.next_node.nil? # rubocop:disable Style/ConditionalAssignment
+          current_node.next_node = node.next_node
+        else
+          current_node.next_node = nil
+        end
+
+        @size -= 1
+      end
+
       current_node = current_node.next_node
     end
+  end
 
-    puts 'nil'
+  def find(key)
+    index = 0
+
+    until index > size - 1
+      return @list[index].value if @list[index].key == key
+
+      index += 1
+    end
+    nil
   end
 end
