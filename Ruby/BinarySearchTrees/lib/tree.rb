@@ -7,7 +7,7 @@ class Tree
   def initialize(array)
     @array = array.sort.uniq
     @root = nil
-    # add root attribute
+    build_tree
   end
 
   def build_tree(array = @array)
@@ -22,11 +22,23 @@ class Tree
     @root
   end
 
-  def pretty_print(node = @root, prefix = '', is_left = true) # rubocop:disable Style/OptionalBooleanParameter
-    pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
-    puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
-    pretty_print(node.left, "#{prefix}#{is_left ? '    ' : '│   '}", true) if node.left
+  def insert(value, current_node = @root) # TODO: test and fix this later
+    node = Node.new(value)
+    current_value = current_node.data
+    
+    if current_value > node
+      if current_node.left.nil?
+        current_node.left = node
+      else
+        insert(value, current_node.left)
+      end
+    elsif current_value < node
+      if current_node.right.nil?
+        current_node.right = node
+      else
+        insert(value, current_node.right)
+      end
+    end
   end
-
-  
 end
+
