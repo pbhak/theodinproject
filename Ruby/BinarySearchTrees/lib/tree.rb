@@ -4,6 +4,7 @@ require_relative 'node'
 
 # Class representing a binary search tree
 class Tree
+  attr_accessor :root
   def initialize(array)
     @root = build_tree(array)
   end
@@ -38,50 +39,34 @@ class Tree
     node
   end
 
-  def delete(item)
-    node = @root
-    parent_node = nil
-    until node.left == item || node.right == item
-      parent_node = node
-      node = node.left if node > item
-      node = node.right if node < item
-    end
+  def delete(item, node = @root)
+    return nil if node.nil?
 
-    # Case 1 - node is a leaf node
-    if node.leaf_node?
-      node.right = nil if node < item
-      node.left = nil if node > item
-    end
+    if node > item
+      node.left = delete(item, node.left)
+    elsif node < item
+      node.right = delete(item, node.right)
+    else
+      return node.right if node.left.nil?
+      return node.left if node.right.nil?
 
-    # Case 2 - node has one child
-    if node.children == 1
-      left = node.right.nil?
+      succ = inorder_successor(node)
+      node.data = succ.data
+      node.right = delete(succ.data, node.right)
+    end 
 
-      if left
-        node.data = node.left
-        node.left = nil
-      else
-        node.data = node.right
-        node.right = nil
-      end
-    end
-
-    # Case 3 - node has two children
-    
+    node
   end
 
-  def inorder_successor(node)
+  def inorder_successor(node = @root)
     node = node.right
     node = node.left until node.leaf_node?
     node
   end
 end
 
-r = Tree.new([50])
-r.insert(30)
-r.insert(20)
-r.insert(40)
-r.insert(70)
-r.insert(60)
-r.insert(80)
-r.pretty_print
+r = Tree.new([50, 30, 70, 20, 40, 60, 80])
+loop do
+  eval(gets.chomp)
+  r.pretty_print
+end
