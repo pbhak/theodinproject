@@ -63,6 +63,16 @@ class Tree
     node = node.left until node.leaf_node?
     node
   end
+
+  def find(item)
+    current_node = @root
+    until current_node.children.include?(item)
+      current_node = current_node.left if current_node > item
+      current_node = current_node.right if current_node < item
+    end
+
+    current_node.children.select { |node| node.data == item }[0]
+  end
 end
 
 r = Tree.new([50, 30, 70, 20, 40, 60, 80])
