@@ -67,7 +67,9 @@ class Tree
     end
 
     # Case 3 - node has two children
-    
+    successor = inorder_successor(@root)
+    @root.data = successor.data
+    item.right = delete(successor.data)
   end
 
   def inorder_successor(node)
@@ -84,4 +86,6 @@ r.insert(40)
 r.insert(70)
 r.insert(60)
 r.insert(80)
+
+r.delete 80
 r.pretty_print
